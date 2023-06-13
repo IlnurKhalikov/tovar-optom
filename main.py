@@ -40,7 +40,7 @@ def parser(url, clas="caption product-info clearfix"):
         soup = BeautifulSoup(response.content, "html.parser")
         products = []
         p = []
-        i = 1
+        j = 1
         for product in soup.find_all("div", class_=clas):
             name = product.find("h4").text
             price = product.find("div", class_="price").text.split('\n')[1].split(' р.')[0].split()
@@ -54,10 +54,10 @@ def parser(url, clas="caption product-info clearfix"):
                 prices = price[0]
             count = product.find('div', class_="description").find_all('span', class_="dotted-line_right")[1].text
             p.append([name, int(float(prices)*1.1), count])
-            if i % 10 == 0:
+            if j % 10 == 0:
                 products.append(p)
                 p = []
-            i += 1
+            j += 1
         products.append(p)
         return products
     except Exception as e:
@@ -471,7 +471,7 @@ def product(message):
             bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
             bot.register_next_step_handler(message, product)
     else:
-        bot.send_message(adm_chat, f'Username: {message.chat.username}\nUrl: {b}\nPage: {Users.get_page(message.chat.id, 0)}\n{message.text}')
+        bot.send_message(adm_chat, f'Username: @{message.chat.username}\nUrl: {b}\nPage: {Users.get_page(message.chat.id, 0)}\n{message.text}')
         bot.send_message(message.chat.id, 'Я передам эти данные админу, и если они корректные, то он обязательно свяжется с вами')
         Users.get_page(message.chat.id, 3)
 
