@@ -28,10 +28,27 @@ a = [['https://kitopt02.ru/stek-cehl/79379/21589/20805/',
 'https://kitopt02.ru/stek-cehl/79379/21589/14232/',
 'https://kitopt02.ru/stek-cehl/79379/21589/89772/',
 'https://kitopt02.ru/stek-cehl/79379/21589/89771/',
-'https://kitopt02.ru/stek-cehl/79379/21589/89770/'],
+'https://kitopt02.ru/stek-cehl/79379/21589/89770/',
+'https://kitopt02.ru/stek-cehl/47818/',
+'https://kitopt02.ru/stek-cehl/25958/',
+'https://kitopt02.ru/stek-cehl/79379/95311/'],
 ['https://kitopt02.ru/88543/26015/',
 'https://kitopt02.ru/88543/26017/',
-'https://kitopt02.ru/88543/27475/']]
+'https://kitopt02.ru/88543/27475/'],
+['https://kitopt02.ru/14/10545/',
+['https://kitopt02.ru/14/16510/47555/',
+'https://kitopt02.ru/14/16510/47557/',
+'https://kitopt02.ru/14/16510/47556/'],
+'https://kitopt02.ru/14/92443/',
+['https://kitopt02.ru/14/77804/45102/',
+'https://kitopt02.ru/14/77804/96386/',
+'https://kitopt02.ru/14/77804/81277/',
+'https://kitopt02.ru/14/77804/30426/',
+'https://kitopt02.ru/14/77804/79212/',
+'https://kitopt02.ru/14/77804/86673/',
+'https://kitopt02.ru/14/77804/91893/'],
+'https://kitopt02.ru/14/95939/',
+'https://kitopt02.ru/14/28238/']]
 
 
 def parser(url, clas="caption product-info clearfix"):
@@ -44,11 +61,9 @@ def parser(url, clas="caption product-info clearfix"):
         for product in soup.find_all("div", class_=clas):
             name = product.find("h4").text
             price = product.find("div", class_="price").text.split('\n')[1].split(' р.')[0].split()
-            print(price)
             if len(price) >= 2:
                 prices = 0
                 for i in range(len(price)):
-                    print(i)
                     prices += float(price[-(i+1)]) * 1000**i
             else:
                 prices = price[0]
@@ -89,7 +104,9 @@ def start(message):
         bot.send_message(message.chat.id, 'Перед тем, как пользоваться ботом прочитайте правила: https://telegra.ph/Pravila-05-13-29', disable_web_page_preview=True, reply_markup=agree)
         bot.register_next_step_handler(message, agreement)
     else:
-        bot.send_message(message.chat.id, text='Добро пожаловать в бота в котором можно купить товары по оптовой цене', parse_mode='Html', reply_markup=menu)
+        Users.get_page(message.chat.id, 3)
+        bot.send_message(message.chat.id, 'Добро пожаловать в бота в котором можно купить товары по оптовой цене', parse_mode='Html', reply_markup=menu)
+        bot.send_message(message.chat.id, 'Подпишись на <a href="https://t.me/tovar_kitopt">канал</a>, чтобы быть в курсе всех обновленний и изменений', disable_web_page_preview=True, parse_mode='Html')
 
 @bot.message_handler(content_types=['text'])
 def lalala(message):
@@ -115,8 +132,11 @@ id: {message.chat.id}
         elif message.text == 'О нас':
             bot.send_message(message.chat.id, f'''Мы купили и доставили {Users.get_orders(1633567239, 0)} заказов.
 Мы работаем с помощью совместных оптовых закупках.
+
 Админ: @ilnurKhalikov
-По всем вопросам обращаться к нему.''')
+По всем вопросам обращаться к нему.
+
+Бот обновляется с 11:00 до 20:00 каждые три часа''')
         else:
             bot.send_message(message.chat.id, 'Error: начните заново(/start)')
 
@@ -147,8 +167,9 @@ def tovar_1(message):
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
     # elif message.text == 'АВТОАКСЕССУАРЫ':
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
-    # elif message.text == 'ФОНАРИ, НОЖИ, РАЦИИ, ТУРИЗМ':
-    #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
+    elif message.text == 'ФОНАРИ, НОЖИ, РАЦИИ, ТУРИЗМ':
+        bot.send_message(message.chat.id, 'Выберите подкатегорию', reply_markup=subcategory_3_0)
+        bot.register_next_step_handler(message, subcategory_3_0_0)
     else:
         bot.send_message(message.chat.id, 'Error: начните заново(/start)')
 
@@ -161,14 +182,26 @@ def subcategory_1_0_0(message):
         bot.register_next_step_handler(message, subcategory_1_0_1)
     # elif message.text == 'ЗАЩИТНЫЕ СТЁКЛА':
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
-    # elif message.text == 'Кардхолдеры':
-    #     bot.send_message(message.chat.id, 'Выберите товар')
+    elif message.text == 'Кардхолдеры':
+        b = a[0][21]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
     # elif message.text == 'Ремешки, браслеты':
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
     # elif message.text == 'Чехлы для APods':
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
-    # elif message.text == 'Стилусы,прочее':
-    #     bot.send_message(message.chat.id, 'Выберите товар')
+    elif message.text == 'Стилусы,прочее':
+        b = a[0][22]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
     else:
         bot.send_message(message.chat.id, 'Error: начните заново(/start)')
 
@@ -189,8 +222,14 @@ def subcategory_1_0_1(message):
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
     # elif message.text == 'Чехлы для Tecno':
     #     bot.send_message(message.chat.id, 'Выберите подкатегорию')
-    # elif message.text == 'Чехлы универсальные':
-    #     bot.send_message(message.chat.id, 'Выберите товар')
+    elif message.text == 'Чехлы универсальные':
+        b = a[0][23]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
     else:
         bot.send_message(message.chat.id, 'Error: начните заново(/start)')
 
@@ -417,8 +456,6 @@ def subcategory_2_0_0(message):
         b = a[1][0]
         url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
         msg = parser(url)
-        if msg == []:
-            bot.send_message(adm, 'YES')
         for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
             bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
         bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
@@ -440,6 +477,138 @@ def subcategory_2_0_0(message):
         bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
         bot.register_next_step_handler(message, product)
 
+def subcategory_3_0_0(message):
+    global b
+    if message.text == '⬅ Назад':
+        bot.send_message(message.chat.id, 'Выберите категорию', reply_markup=category)
+        bot.register_next_step_handler(message, tovar_1)
+    elif message.text == 'Термосы':
+        b = a[2][0]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'НОЖИ':
+        bot.send_message(message.chat.id, 'Выбирите подкатегорию', reply_markup=subcategory_3_1)
+        bot.register_next_step_handler(message, subcategory_3_0_1)
+    elif message.text == 'Наборы для выживания':
+        b = a[2][2]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'ФОНАРИ':
+        bot.send_message(message.chat.id, 'Выбирите подкатегорию', reply_markup=subcategory_3_2)
+        bot.register_next_step_handler(message, subcategory_3_0_1)
+    elif message.text == 'РАЦИИ':
+        b = a[2][4]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'БИНОКЛИ':
+        b = a[2][5]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+
+def subcategory_3_0_1(message):
+    global b
+    if message.text == '⬅ Назад':
+        bot.send_message(message.chat.id, 'Выберите подкатегорию', reply_markup=subcategory_3_0)
+        bot.register_next_step_handler(message, subcategory_3_0_0)
+    elif message.text == 'МУЛЬТИ-НАБОРЫ':
+        b = a[2][1][0]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'СКЛАДНЫЕ НОЖИ, В ЧЕХЛЕ':
+        b = a[2][1][1]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'ТРЕНИРОВОЧНЫЕ НОЖИ':
+        b = a[2][1][2]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    #--------------------------------------------------------------------------
+    elif message.text == 'РУЧНЫЕ светодиодные на батарейках':
+        b = a[2][3][0]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'Фонари для велосипедов':
+        b = a[2][3][1]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'РУЧНЫЕ на аккумуляторе, фонарь-ШОКЕР':
+        b = a[2][3][2]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'НАЛОБНЫЕ светодиодные на батарейках':
+        b = a[2][3][3]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'НАЛОБНЫЕ светодиодные с АКБ':
+        b = a[2][3][4]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'КЕМПИНГОВЫЕ светодиодные, УЛИЧНЫЕ, ОТ СОЛНЦА':
+        b = a[2][3][5]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+    elif message.text == 'ФОНАРИ-БРЕЛКИ, ЛАЗЕРЫ':
+        b = a[2][3][6]
+        url = f'{b}?page={Users.get_page(message.chat.id, 0) // 6 + 1}'
+        msg = parser(url)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
+
+
 
 def product(message):
     if message.text == '⬅ Назад':
@@ -449,27 +618,22 @@ def product(message):
         Users.get_page(message.chat.id, 1)
         url = f'{b}?page={Users.get_page(message.chat.id, 0)//6 + 1}'
         msg = parser(url)
-        if msg == []:
-            bot.send_message(message.chat.id, 'Error: Такой страницы нету', reply_markup=page_2)
-            bot.register_next_step_handler(message, product)
-        else:
+        try:
             for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
                 bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0)%6][i][0]}\n{msg[Users.get_page(message.chat.id, 0)%6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0)%6][i][2]}')
-            bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):',
-                             reply_markup=page_1)
+            bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+            bot.register_next_step_handler(message, product)
+        except:
+            bot.send_message(message.chat.id, 'Error: Такой страницы нету', reply_markup=page_2)
             bot.register_next_step_handler(message, product)
     elif message.text == '⬅Предыдущая страница':
         Users.get_page(message.chat.id, 2)
         url = f'{b}?page={Users.get_page(message.chat.id, 0)//6 + 1}'
         msg = parser(url)
-        if msg == []:
-            bot.send_message(message.chat.id, 'Error: Такой страницы нету', reply_markup=page_2)
-            bot.register_next_step_handler(message, product)
-        else:
-            for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
-                bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
-            bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
-            bot.register_next_step_handler(message, product)
+        for i in range(len(msg[Users.get_page(message.chat.id, 0) % 6])):
+            bot.send_message(message.chat.id, f'{i + 1}.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][0]}\n{msg[Users.get_page(message.chat.id, 0) % 6][i][1]} руб.\n{msg[Users.get_page(message.chat.id, 0) % 6][i][2]}')
+        bot.send_message(message.chat.id, 'Выберите товар(введите номер товара и кол-во, которое хотите приобрести):', reply_markup=page_1)
+        bot.register_next_step_handler(message, product)
     else:
         bot.send_message(adm_chat, f'Username: @{message.chat.username}\nUrl: {b}\nPage: {Users.get_page(message.chat.id, 0)}\n{message.text}')
         bot.send_message(message.chat.id, 'Я передам эти данные админу, и если они корректные, то он обязательно свяжется с вами')
@@ -485,4 +649,8 @@ def agreement(message):
         bot.send_message(message.chat.id, 'Перед тем, как пользоваться ботом прочитайте правила: https://telegra.ph/Pravila-05-13-29',disable_web_page_preview=True, reply_markup=agree)
         bot.register_next_step_handler(message, agreement)
 
-bot.polling()
+while True:
+    try:
+        bot.polling()
+    except Exception as e:
+        print(f'Error: {e}')
