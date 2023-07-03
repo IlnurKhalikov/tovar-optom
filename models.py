@@ -4,8 +4,7 @@ from datetime import datetime
 
 now = datetime.now()  # Работа с временем
 
-db = SqliteDatabase(
-    'user.db')  # Указываем с какой базой данных будем работать. Она обязательно должна быть в той папке в которой находится этот файл
+db = SqliteDatabase('user.db')  # Указываем с какой базой данных будем работать. Она обязательно должна быть в той папке в которой находится этот файл
 
 
 class BaseModel(Model):
@@ -17,6 +16,7 @@ class Users(BaseModel):
     user_id = IntegerField(unique=True, default=0)
     ref = IntegerField(default=0)
     ref_id = IntegerField(default=0)
+    percent = TextField(default="0")
     agreement = IntegerField(default=0)
     orders = IntegerField(default=0)
     cancel_orders = IntegerField(default=0)
@@ -59,6 +59,16 @@ class Users(BaseModel):
             return cls.get(Users.user_id == user_id).orders
 
     @classmethod
+    def get_percent(cls, user_id, i):
+        if i == 1:
+            if int(Users.get_percent(user_id, 0)) < 3:
+                ord = cls.get_user(user_id)
+                ord.percent = str(int(Users.get_percent(user_id, 0)) + 0.1)
+                ord.save()
+        else:
+            return cls.get(Users.user_id == user_id).percent
+
+    @classmethod
     def get_cancel_orders(cls, user_id, i):
         if i == 1:
             ord = cls.get_user(user_id)
@@ -68,10 +78,10 @@ class Users(BaseModel):
             return cls.get(Users.user_id == user_id).cancel_orders
 
     @classmethod
-    def get_access_orders(cls, user_id, i):
+    def get_access_orders(cls, user_id, i, j=1):
         if i == 1:
             ord = cls.get_user(user_id)
-            ord.access_orders += 1
+            ord.access_orders = j
             ord.save()
         else:
             return cls.get(Users.user_id == user_id).access_orders
