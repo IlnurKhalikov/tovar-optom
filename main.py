@@ -5,7 +5,7 @@ from keyboard import *
 from bs4 import BeautifulSoup
 from telebot import TeleBot, types
 
-bot = TeleBot('6014555057:AAHwPHa9kYDoD4iZfgdIvOH__0SoQ_a0HI0')
+bot = TeleBot(token)
 adm_chat = -1001859680142
 adm = 1633567239
 a = [['https://kitopt02.ru/stek-cehl/79379/21589/20805/',
